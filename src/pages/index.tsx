@@ -1,26 +1,30 @@
 import { useState } from 'react';
 
 export default function Home() {
-  const [word, setWord] = useState<string>('');
+  const [word, setWord] = useState<string>('HELLO'); // Replace with fetch logic
   const [guesses, setGuesses] = useState<string[]>([]);
   const [currentGuess, setCurrentGuess] = useState<string>('');
   const [feedback, setFeedback] = useState<string[][]>([]);
+  const [showModal, setShowModal] = useState<boolean>(false); // Modal visibility state
 
-  const fetchWord = async () => {
-    const res = await fetch('/api/get-word');
-    const data = await res.json();
-    setWord(data.word);
+  const restartGame = () => {
+    setGuesses([]);
+    setFeedback([]);
+    setShowModal(false);
+    setCurrentGuess('');
+    // Fetch a new word if needed
+    setWord('HELLO'); // Replace with actual fetch logic
   };
 
   const checkGuess = (guess: string) => {
     let feedback: string[] = [];
     for (let i = 0; i < 5; i++) {
       if (guess[i] === word[i]) {
-        feedback.push('green'); // Correct position
+        feedback.push('green');
       } else if (word.includes(guess[i])) {
-        feedback.push('yellow'); // Correct letter, wrong position
+        feedback.push('yellow');
       } else {
-        feedback.push('gray'); // Incorrect letter
+        feedback.push('gray');
       }
     }
     setFeedback((prev) => [...prev, feedback]);
@@ -31,20 +35,31 @@ export default function Home() {
       checkGuess(currentGuess);
       setGuesses((prev) => [...prev, currentGuess]);
       setCurrentGuess('');
+      if (guesses.length >= 5 || currentGuess === word) {
+        setShowModal(true); // Show modal if game is over
+      }
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && currentGuess.length === 5) {
+      handleSubmit();
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="flex items-center justify-center h-screen bg-gray-100">
       <div className="w-full max-w-sm p-4 bg-white shadow-md rounded-lg">
         <h1 className="text-2xl text-center font-bold mb-4">Dejny Wordle Game</h1>
-        <div className="grid grid-cols-5 gap-2 mb-4">
+
+        {/* Grid layout */}
+        <div className="space-y-2 mb-4">
           {guesses.map((guess, rowIndex) => (
-            <div key={rowIndex} className="flex">
+            <div key={rowIndex} className="flex justify-center">
               {guess.split('').map((letter, colIndex) => (
                 <div
                   key={colIndex}
-                  className={`w-12 h-12 flex items-center justify-center text-white p-2 m-0.5 rounded-lg ${
+                  className={`w-12 h-12 flex items-center justify-center text-white m-0.5 rounded-lg ${
                     feedback[rowIndex]?.[colIndex] === 'green'
                       ? 'bg-green-500'
                       : feedback[rowIndex]?.[colIndex] === 'yellow'
@@ -58,14 +73,24 @@ export default function Home() {
             </div>
           ))}
         </div>
+
+        {/* Input and button */}
         <input
           type="text"
           value={currentGuess}
-          onChange={(e) => setCurrentGuess(e.target.value.toLowerCase())}
+          onChange={(e) => {
+            const input = e.target.value;
+            // Allow only letters a-z and A-Z
+            if (/^[a-zA-Z]*$/.test(input)) {
+              setCurrentGuess(input.toLowerCase());
+            }
+          }}
+          onKeyDown={handleKeyDown}
           className="w-full p-2 text-center border border-gray-300 rounded mb-4"
           maxLength={5}
           disabled={guesses.length >= 6 || guesses.includes(word)}
         />
+
         <button
           onClick={handleSubmit}
           className="w-full p-2 bg-blue-500 text-white rounded disabled:bg-gray-400"
@@ -73,10 +98,63 @@ export default function Home() {
         >
           Submit Guess
         </button>
-        {guesses.length >= 6 && !guesses.includes(word) && (
-          <div className="text-center mt-4 text-red-500">Game Over! The word was: {word}</div>
+
+        {/* Restart and Show Word Buttons */}
+        {guesses.length >= 6 && (
+          <div className="flex justify-between mt-4">
+            <button
+              onClick={() => setShowModal(true)}
+              className="p-2 bg-gray-700 text-white rounded w-1/2 mr-1"
+            >
+              Show Word
+            </button>
+            <button
+              onClick={restartGame}
+              className="p-2 bg-green-500 text-white rounded w-1/2 ml-1"
+            >
+              Restart Game
+            </button>
+          </div>
         )}
       </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+          onClick={() => setShowModal(false)} // Close when clicking outside
+        >
+          <div
+            className="bg-white p-6 pt-4 rounded-lg shadow-lg relative"
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
+          >
+            <button
+              onClick={() => setShowModal(false)}
+              className="absolute top-2 right-4 font-bold text-gray-600 text-2xl "
+            >
+              &times;
+            </button>
+            <h2 className="text-xl font-bold mb-4">Game Over!</h2>
+            <p className="text-lg mb-4">The Wordle was: <strong>{word}</strong></p>
+
+            {/* Restart and Show Word Buttons */}
+            <div className="flex justify-between">
+              <button
+                onClick={restartGame}
+                className="p-2 bg-green-500 text-white rounded w-1/2 mr-1"
+              >
+                Restart
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                className="p-2 bg-gray-700 text-white rounded w-1/2 ml-1"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
