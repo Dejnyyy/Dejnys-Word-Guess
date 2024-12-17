@@ -1,19 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Home() {
-  const [word, setWord] = useState<string>('HELLO'); // Replace with fetch logic
+  // State for the game
+  const [word, setWord] = useState<string>(''); // Word to guess
   const [guesses, setGuesses] = useState<string[]>([]);
   const [currentGuess, setCurrentGuess] = useState<string>('');
   const [feedback, setFeedback] = useState<string[][]>([]);
-  const [showModal, setShowModal] = useState<boolean>(false); // Modal visibility state
+  const [showModal, setShowModal] = useState<boolean>(false);
 
+  // Function to fetch a random 5-letter word
+  const fetchWord = async () => {
+    try {
+      const response = await fetch('https://api.datamuse.com/words?sp=?????'); // Fetch 5-letter words
+      const data = await response.json();
+      if (data.length > 0) {
+        // Randomly select a word from the API response
+        const randomWord = data[Math.floor(Math.random() * data.length)].word;
+        setWord(randomWord.toUpperCase()); // Set the word in uppercase for consistency
+      } else {
+        console.error('No words found from the Datamuse API');
+      }
+    } catch (error) {
+      console.error('Error fetching word:', error);
+    }
+  };
+
+  // Fetch the word when the game starts
+  useEffect(() => {
+    fetchWord();
+  }, []);
+
+  // Restart the game and fetch a new word
   const restartGame = () => {
     setGuesses([]);
     setFeedback([]);
     setShowModal(false);
     setCurrentGuess('');
-    // Fetch a new word if needed
-    setWord('HELLO'); // Replace with actual fetch logic
+    fetchWord(); // Fetch a new word
   };
 
   const checkGuess = (guess: string) => {
@@ -36,7 +59,7 @@ export default function Home() {
       setGuesses((prev) => [...prev, currentGuess]);
       setCurrentGuess('');
       if (guesses.length >= 5 || currentGuess === word) {
-        setShowModal(true); // Show modal if game is over
+        setShowModal(true);
       }
     }
   };
@@ -59,7 +82,7 @@ export default function Home() {
               {guess.split('').map((letter, colIndex) => (
                 <div
                   key={colIndex}
-                  className={`w-12 h-12 flex items-center justify-center text-white m-0.5 rounded-lg ${
+                  className={`w-12 h-12 flex items-center justify-center text-white rounded-lg ${
                     feedback[rowIndex]?.[colIndex] === 'green'
                       ? 'bg-green-500'
                       : feedback[rowIndex]?.[colIndex] === 'yellow'
@@ -78,19 +101,12 @@ export default function Home() {
         <input
           type="text"
           value={currentGuess}
-          onChange={(e) => {
-            const input = e.target.value;
-            // Allow only letters a-z and A-Z
-            if (/^[a-zA-Z]*$/.test(input)) {
-              setCurrentGuess(input.toLowerCase());
-            }
-          }}
+          onChange={(e) => setCurrentGuess(e.target.value.toLowerCase())}
           onKeyDown={handleKeyDown}
           className="w-full p-2 text-center border border-gray-300 rounded mb-4"
           maxLength={5}
           disabled={guesses.length >= 6 || guesses.includes(word)}
         />
-
         <button
           onClick={handleSubmit}
           className="w-full p-2 bg-blue-500 text-white rounded disabled:bg-gray-400"
@@ -122,11 +138,11 @@ export default function Home() {
       {showModal && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
-          onClick={() => setShowModal(false)} // Close when clicking outside
+          onClick={() => setShowModal(false)}
         >
           <div
             className="bg-white p-6 pt-4 rounded-lg shadow-lg relative"
-            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
+            onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setShowModal(false)}
@@ -135,9 +151,10 @@ export default function Home() {
               &times;
             </button>
             <h2 className="text-xl font-bold mb-4">Game Over!</h2>
-            <p className="text-lg mb-4">The Wordle was: <strong>{word}</strong></p>
+            <p className="text-lg mb-4">
+              The Wordle was: <strong>{word}</strong>
+            </p>
 
-            {/* Restart and Show Word Buttons */}
             <div className="flex justify-between">
               <button
                 onClick={restartGame}
