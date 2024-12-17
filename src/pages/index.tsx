@@ -63,16 +63,17 @@ export default function Home() {
   const handleSubmit = () => {
     if (currentGuess.length === 5) {
       checkGuess(currentGuess);
-      setGuesses((prev) => [...prev, currentGuess]);
-      setCurrentGuess('');
-  
-      if (currentGuess === word) {
-        setShowModal(true);
-      } else if (guesses.length >= 5) {
-        setShowModal(true); // If 6 tries are done and not guessed, show the word
+      setGuesses((prev) => [...prev, currentGuess]); // Add the current guess
+      if (currentGuess.toUpperCase() === word) {
+        setShowModal(true); // Correct guess triggers modal immediately
+      } else if (guesses.length + 1 >= 6) { 
+        setShowModal(true); // Show modal after 6 attempts
       }
+      setCurrentGuess(''); // Clear the input
     }
   };
+  
+  
   
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -152,8 +153,7 @@ export default function Home() {
         )}
       </div>
 
-      {/* Modal */}
-      {/* Modal for Game Over or Winning */}
+    {/* Modal for Winning or Losing */}
 {showModal && (
   <div
     className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
@@ -169,12 +169,15 @@ export default function Home() {
       >
         &times;
       </button>
-      <h2 className="text-xl font-bold mb-4">{currentGuess === word ? 'You Win!' : 'Game Over!'}</h2>
-      <p className="text-lg mb-4">
-        {currentGuess === word
-          ? `Congratulations! You guessed the word in ${guesses.length + 1} attempts!`
-          : `The Wordle was: ${word}`}
-      </p>
+      <h2 className="text-xl font-bold mb-4">
+  {guesses.includes(word) ? 'Congratulations!' : 'Better luck next time!'}
+</h2>
+<p className="text-lg mb-4">
+  {guesses.includes(word)
+    ? `You guessed the word in ${guesses.length} attempts!`
+    : `The word was: ${word}`}
+</p>
+
 
       <div className="flex justify-between">
         <button
@@ -193,6 +196,9 @@ export default function Home() {
     </div>
   </div>
 )}
+
+
+
 
     </div>
   );
