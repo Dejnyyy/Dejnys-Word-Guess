@@ -96,7 +96,7 @@ export default function Home() {
       {guess.split('').map((letter, colIndex) => (
         <div
           key={colIndex}
-          className={`w-12 h-12 flex items-center justify-center text-white font-bold rounded-lg
+          className={`w-12 h-12 flex items-center justify-center text-white m-0.5 font-bold rounded-lg
             ${
               feedback[rowIndex] && feedback[rowIndex][colIndex] === 'green'
                 ? 'bg-green-500'
