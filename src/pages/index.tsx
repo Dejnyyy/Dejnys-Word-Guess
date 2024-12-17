@@ -7,6 +7,7 @@ export default function Home() {
   const [currentGuess, setCurrentGuess] = useState<string>('');
   const [feedback, setFeedback] = useState<string[][]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [keyboardState, setKeyboardState] = useState<{ [key: string]: string }>({});
 
   // Function to fetch a random 5-letter word
   const fetchWord = async () => {
@@ -14,9 +15,8 @@ export default function Home() {
       const response = await fetch('https://api.datamuse.com/words?sp=?????'); // Fetch 5-letter words
       const data = await response.json();
       if (data.length > 0) {
-        // Randomly select a word from the API response
         const randomWord = data[Math.floor(Math.random() * data.length)].word;
-        setWord(randomWord.toUpperCase()); // Set the word in uppercase for consistency
+        setWord(randomWord.toUpperCase());
       } else {
         console.error('No words found from the Datamuse API');
       }
@@ -25,77 +25,104 @@ export default function Home() {
     }
   };
 
-  // Fetch the word when the game starts
   useEffect(() => {
     fetchWord();
   }, []);
 
-  // Restart the game and fetch a new word
   const restartGame = () => {
     setGuesses([]);
     setFeedback([]);
     setShowModal(false);
     setCurrentGuess('');
-    fetchWord(); // Fetch a new word
+    setKeyboardState({});
+    fetchWord();
   };
+
   const checkGuess = (guess: string) => {
-    const targetWord = word.toLowerCase(); // Word to guess
-    const guessLower = guess.toLowerCase(); // Player's guess
-  
-    let newFeedback: string[] = Array(5).fill('gray'); // Default all feedback to 'gray'
-    const targetLetterCount: { [key: string]: number } = {}; // Track letter frequency in target word
-    // Step 1: Count letters in the target word
+    const targetWord = word.toLowerCase();
+    const guessLower = guess.toLowerCase();
+    let newFeedback: string[] = Array(5).fill('gray');
+    const targetLetterCount: { [key: string]: number } = {};
+
     for (let letter of targetWord) {
       targetLetterCount[letter] = (targetLetterCount[letter] || 0) + 1;
     }
-    // Step 2: Check for correct letters in correct positions (Green)
+
+    // Green check
     for (let i = 0; i < 5; i++) {
       if (guessLower[i] === targetWord[i]) {
-        newFeedback[i] = 'green'; // Correct position
-        targetLetterCount[guessLower[i]] -= 1; // Reduce count as it has been used
+        newFeedback[i] = 'green';
+        targetLetterCount[guessLower[i]] -= 1;
+        setKeyboardState((prev) => ({ ...prev, [guessLower[i]]: 'green' }));
       }
     }
-    // Step 3: Check for correct letters in incorrect positions (Yellow)
+
+    // Yellow check
     for (let i = 0; i < 5; i++) {
-      if (newFeedback[i] === 'gray' && targetWord.includes(guessLower[i]) && targetLetterCount[guessLower[i]] > 0) {
-        newFeedback[i] = 'yellow'; // Correct letter but wrong position
-        targetLetterCount[guessLower[i]] -= 1; // Reduce count as it has been used
+      if (
+        newFeedback[i] === 'gray' &&
+        targetWord.includes(guessLower[i]) &&
+        targetLetterCount[guessLower[i]] > 0
+      ) {
+        newFeedback[i] = 'yellow';
+        targetLetterCount[guessLower[i]] -= 1;
+        if (!keyboardState[guessLower[i]]) {
+          setKeyboardState((prev) => ({ ...prev, [guessLower[i]]: 'yellow' }));
+        }
       }
     }
-  
-    console.log('Target Word:', word);
-    console.log('Player Guess:', guess);
-    console.log('Feedback:', newFeedback);
-  
-    setFeedback((prev) => [...prev, newFeedback]); // Add feedback for this guess
+
+    // Gray check
+    for (let i = 0; i < 5; i++) {
+      if (newFeedback[i] === 'gray' && !keyboardState[guessLower[i]]) {
+        setKeyboardState((prev) => ({ ...prev, [guessLower[i]]: 'gray' }));
+      }
+    }
+
+    setFeedback((prev) => [...prev, newFeedback]);
   };
-  
-  
-  
 
   const handleSubmit = () => {
     if (currentGuess.length === 5) {
       checkGuess(currentGuess);
-      setGuesses((prev) => [...prev, currentGuess]); // Add the current guess
+      setGuesses((prev) => [...prev, currentGuess]);
       if (currentGuess.toUpperCase() === word) {
-        setShowModal(true); // Correct guess triggers modal immediately
-      } else if (guesses.length + 1 >= 6) { 
-        setShowModal(true); // Show modal after 6 attempts
+        setShowModal(true);
+      } else if (guesses.length + 1 >= 6) {
+        setShowModal(true);
       }
-      setCurrentGuess(''); // Clear the input
+      setCurrentGuess('');
     }
   };
-  
-  
-  
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && currentGuess.length === 5) {
-      console.log('Guesses:', guesses);
-    console.log('Feedback:', feedback);
       handleSubmit();
     }
   };
+
+  // Helper to render keyboard rows
+  const renderKeyboardRow = (letters: string) => (
+    <div className="flex space-x-1 justify-center">
+      {letters.split('').map((letter) => (
+        <button
+          key={letter}
+          className={`w-8 h-10 flex items-center justify-center font-bold rounded text-white ${
+            keyboardState[letter.toLowerCase()] === 'green'
+              ? 'bg-green-500'
+              : keyboardState[letter.toLowerCase()] === 'yellow'
+              ? 'bg-yellow-500'
+              : keyboardState[letter.toLowerCase()] === 'gray'
+              ? 'bg-gray-400'
+              : 'bg-gray-200'
+          }`}
+          disabled
+        >
+          {letter}
+        </button>
+      ))}
+    </div>
+  );
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
@@ -104,30 +131,25 @@ export default function Home() {
 
         {/* Grid layout */}
         <div className="space-y-2 mb-4">
-  {guesses.map((guess, rowIndex) => (
-    <div key={rowIndex} className="flex justify-center">
-      {guess.split('').map((letter, colIndex) => (
-        <div
-          key={colIndex}
-          className={`w-12 h-12 flex items-center justify-center text-white m-0.5 font-bold rounded-lg
-            ${
-              feedback[rowIndex] && feedback[rowIndex][colIndex] === 'green'
-                ? 'bg-green-500'
-                : feedback[rowIndex] && feedback[rowIndex][colIndex] === 'yellow'
-                ? 'bg-yellow-500'
-                : feedback[rowIndex] && feedback[rowIndex][colIndex] === 'gray'
-                ? 'bg-gray-400'
-                : 'bg-gray-200'
-            }`}
-        >
-          {letter.toUpperCase()}
+          {guesses.map((guess, rowIndex) => (
+            <div key={rowIndex} className="flex justify-center">
+              {guess.split('').map((letter, colIndex) => (
+                <div
+                  key={colIndex}
+                  className={`w-12 h-12 flex items-center justify-center text-white m-0.5 font-bold rounded-lg ${
+                    feedback[rowIndex]?.[colIndex] === 'green'
+                      ? 'bg-green-500'
+                      : feedback[rowIndex]?.[colIndex] === 'yellow'
+                      ? 'bg-yellow-500'
+                      : 'bg-gray-400'
+                  }`}
+                >
+                  {letter.toUpperCase()}
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  ))}
-</div>
-
-
 
         {/* Input and button */}
         <input
@@ -137,83 +159,51 @@ export default function Home() {
           onKeyDown={handleKeyDown}
           className="w-full p-2 text-center border border-gray-300 rounded mb-4"
           maxLength={5}
-          placeholder='Type your guess...'
-          disabled={guesses.length >= 6 || guesses.includes(word)}
+          placeholder="Type your guess..."
         />
         <button
-          onClick={handleSubmit }
-          className="w-full p-2 bg-blue-500 text-white rounded disabled:bg-gray-400"
-          disabled={currentGuess.length !== 5 || guesses.length >= 6 || guesses.includes(word)}
+          onClick={handleSubmit}
+          className="w-full p-2 bg-blue-500 text-white rounded disabled:bg-gray-400 mb-4"
+          disabled={currentGuess.length !== 5}
         >
           Submit Guess
         </button>
 
-        {/* Restart and Show Word Buttons */}
-        {guesses.length >= 6 && (
-          <div className="flex justify-between mt-4">
+        {/* Keyboard */}
+        <div className="space-y-2">
+          {renderKeyboardRow('QWERTYUIOP')}
+          {renderKeyboardRow('ASDFGHJKL')}
+          {renderKeyboardRow('ZXCVBNM')}
+        </div>
+      </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 pt-4 rounded-lg shadow-lg relative">
             <button
-              onClick={() => setShowModal(true)}
-              className="p-2 bg-gray-700 text-white rounded w-1/2 mr-1"
+              onClick={() => setShowModal(false)}
+              className="absolute top-2 right-4 font-bold text-gray-600 text-2xl"
             >
-              Show Word
+              &times;
             </button>
+            <h2 className="text-xl font-bold mb-4">
+              {guesses.includes(word) ? 'Congratulations!' : 'Better luck next time!'}
+            </h2>
+            <p className="text-lg mb-4">
+              {guesses.includes(word)
+                ? `You guessed the word in ${guesses.length} attempts!`
+                : `The word was: ${word}`}
+            </p>
             <button
               onClick={restartGame}
-              className="p-2 bg-green-500 text-white rounded w-1/2 ml-1"
+              className="p-2 bg-green-500 text-white rounded w-full"
             >
               Restart Game
             </button>
           </div>
-        )}
-      </div>
-
-    {/* Modal for Winning or Losing */}
-{showModal && (
-  <div
-    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
-    onClick={() => setShowModal(false)}
-  >
-    <div
-      className="bg-white p-6 pt-4 rounded-lg shadow-lg relative"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <button
-        onClick={() => setShowModal(false)}
-        className="absolute top-2 right-4 font-bold text-gray-600 text-2xl "
-      >
-        &times;
-      </button>
-      <h2 className="text-xl font-bold mb-4">
-  {guesses.includes(word) ? 'Congratulations!' : 'Better luck next time!'}
-</h2>
-<p className="text-lg mb-4">
-  {guesses.includes(word)
-    ? `You guessed the word in ${guesses.length} attempts!`
-    : `The word was: ${word}`}
-</p>
-
-
-      <div className="flex justify-between">
-        <button
-          onClick={restartGame}
-          className="p-2 bg-green-500 text-white rounded w-1/2 mr-1"
-        >
-          Restart
-        </button>
-        <button
-          onClick={() => setShowModal(false)}
-          className="p-2 bg-gray-700 text-white rounded w-1/2 ml-1"
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-
-
-
+        </div>
+      )}
     </div>
   );
 }
