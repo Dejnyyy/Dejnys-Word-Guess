@@ -39,24 +39,40 @@ export default function Home() {
     fetchWord(); // Fetch a new word
   };
   const checkGuess = (guess: string) => {
-    const targetWord = word.toUpperCase(); 
-    const guessLower = guess.toUpperCase(); 
+    const targetWord = word.toLowerCase(); // Word to guess
+    const guessLower = guess.toLowerCase(); // Player's guess
   
-    let newFeedback: string[] = [];
+    let newFeedback: string[] = Array(5).fill('gray'); // Default all feedback to 'gray'
+    const targetLetterCount: { [key: string]: number } = {}; // Track letter frequency in target word
+  
+    // Step 1: Count letters in the target word
+    for (let letter of targetWord) {
+      targetLetterCount[letter] = (targetLetterCount[letter] || 0) + 1;
+    }
+  
+    // Step 2: Check for correct letters in correct positions (Green)
     for (let i = 0; i < 5; i++) {
       if (guessLower[i] === targetWord[i]) {
-        newFeedback.push('green'); // Correct letter & position
-      } else if (targetWord.includes(guessLower[i])) {
-        newFeedback.push('yellow'); // Correct letter, wrong position
-      } else {
-        newFeedback.push('gray'); // Incorrect letter
+        newFeedback[i] = 'green'; // Correct position
+        targetLetterCount[guessLower[i]] -= 1; // Reduce count as it has been used
       }
     }
+  
+    // Step 3: Check for correct letters in incorrect positions (Yellow)
+    for (let i = 0; i < 5; i++) {
+      if (newFeedback[i] === 'gray' && targetWord.includes(guessLower[i]) && targetLetterCount[guessLower[i]] > 0) {
+        newFeedback[i] = 'yellow'; // Correct letter but wrong position
+        targetLetterCount[guessLower[i]] -= 1; // Reduce count as it has been used
+      }
+    }
+  
     console.log('Target Word:', word);
     console.log('Player Guess:', guess);
-
+    console.log('Feedback:', newFeedback);
+  
     setFeedback((prev) => [...prev, newFeedback]); // Add feedback for this guess
   };
+  
   
   
 
@@ -87,7 +103,7 @@ export default function Home() {
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
       <div className="w-full max-w-sm p-4 bg-white shadow-md rounded-lg">
-        <h1 className="text-2xl text-center font-bold mb-4">Dejny Wordle Game</h1>
+        <h1 className="text-2xl text-center font-bold mb-4">Dejny's Wordly</h1>
 
         {/* Grid layout */}
         <div className="space-y-2 mb-4">
@@ -124,6 +140,7 @@ export default function Home() {
           onKeyDown={handleKeyDown}
           className="w-full p-2 text-center border border-gray-300 rounded mb-4"
           maxLength={5}
+          placeholder='Type your guess...'
           disabled={guesses.length >= 6 || guesses.includes(word)}
         />
         <button
