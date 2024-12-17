@@ -8,6 +8,15 @@ export default function Home() {
   const [feedback, setFeedback] = useState<string[][]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [keyboardState, setKeyboardState] = useState<{ [key: string]: string }>({});
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false); // Default to false
+
+  // On client-side mount, check localStorage
+  useEffect(() => {
+    const savedMode = localStorage.getItem('isDarkMode');
+    if (savedMode !== null) {
+      setIsDarkMode(JSON.parse(savedMode));
+    }
+  }, []);
 
   // Function to fetch a random 5-letter word
   const fetchWord = async () => {
@@ -28,6 +37,17 @@ export default function Home() {
   useEffect(() => {
     fetchWord();
   }, []);
+
+  useEffect(() => {
+    // Apply dark or light mode to the html element
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark'); // Add the 'dark' class to the html element
+    } else {
+      document.documentElement.classList.remove('dark'); // Remove the 'dark' class
+    }
+    // Save the dark mode preference in localStorage
+    localStorage.setItem('isDarkMode', JSON.stringify(isDarkMode));
+  }, [isDarkMode]); // Re-run when dark mode state changes
 
   const restartGame = () => {
     setGuesses([]);
@@ -107,14 +127,16 @@ export default function Home() {
       {letters.split('').map((letter) => (
         <button
           key={letter}
-          className={`w-8 h-10 flex items-center justify-center font-bold rounded text-white ${
+          className={`w-8 h-10 flex items-center justify-center font-bold rounded ${
             keyboardState[letter.toLowerCase()] === 'green'
               ? 'bg-green-500'
               : keyboardState[letter.toLowerCase()] === 'yellow'
               ? 'bg-yellow-500'
               : keyboardState[letter.toLowerCase()] === 'gray'
               ? 'bg-gray-400'
-              : 'bg-gray-200'
+              : isDarkMode
+              ? 'bg-gray-700 text-white'
+              : 'bg-gray-200 text-black'
           }`}
           disabled
         >
@@ -125,9 +147,21 @@ export default function Home() {
   );
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <div className="w-full max-w-sm p-4 bg-white shadow-md rounded-lg">
-        <h1 className="text-2xl text-center bg-gradient-to-br from-yellow-400 via-pink-600  to-purple-600 text-transparent bg-clip-text font-bold mb-4">Dejny's Wordly</h1>
+    <div className={`h-screen transition-all duration-300 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
+      <div className={`w-full max-w-sm p-4 m-auto i shadow-md rounded-lg ${isDarkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
+        {/* Light/Dark Mode Toggle Emoji */}
+        <span
+          onClick={() => setIsDarkMode(!isDarkMode)}
+          className={`absolute top-4 right-4 text-4xl cursor-pointer transition-all duration-300 ease-in-out p-2 rounded-full ${
+            isDarkMode ? 'bg-yellow-300' : 'bg-blue-500'
+          }`}
+        >
+          {isDarkMode ? '🌞' : '🌙'}
+        </span>
+
+        <h1 className="text-2xl text-center bg-gradient-to-br from-yellow-400 via-pink-600 to-purple-600 text-transparent bg-clip-text font-bold mb-4">
+          Dejny's Wordly
+        </h1>
 
         {/* Grid layout */}
         <div className="space-y-2 mb-4">
@@ -156,7 +190,7 @@ export default function Home() {
           type="text"
           value={currentGuess}
           onKeyDown={handleKeyDown}
-          className="w-full p-2 text-center border border-gray-300 rounded mb-4"
+          className={`w-full p-2 text-center border border-gray-300 rounded mb-4 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-black'} `}
           maxLength={5}
           onChange={(e) => {
             const input = e.target.value;
@@ -186,10 +220,10 @@ export default function Home() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 pt-4 rounded-lg shadow-lg relative">
+          <div className="bg-white p-6 pt-4 rounded-lg shadow-lg relative dark:bg-gray-800 dark:text-white">
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-2 right-4 font-bold text-gray-600 text-2xl"
+              className="absolute top-2 right-4 font-bold text-gray-600 dark:text-gray-200 text-2xl"
             >
               &times;
             </button>
@@ -197,20 +231,20 @@ export default function Home() {
               {guesses.includes(word) ? 'Congratulations!' : 'Better luck next time!'}
             </h2>
             <p className="text-lg mb-4">
-  {guesses.includes(word) ? (
-    <>
-      You guessed the word in{' '}
-      <span
-        className="bg-gradient-to-br from-yellow-400 via-pink-600  to-purple-600 bg-clip-text text-transparent font-extrabold"
-        style={{ display: 'inline-block' }}
-      >
-        {guesses.length} attempts!
-      </span>
-    </>
-  ) : (
-    `The word was: ${word}`
-  )}
-</p>
+              {guesses.includes(word) ? (
+                <>
+                  You guessed the word in{' '}
+                  <span
+                    className="bg-gradient-to-br from-yellow-400 via-pink-600 to-purple-600 bg-clip-text text-transparent font-extrabold"
+                    style={{ display: 'inline-block' }}
+                  >
+                    {guesses.length} attempts!
+                  </span>
+                </>
+              ) : (
+                `The word was: ${word}`
+              )}
+            </p>
 
             <button
               onClick={restartGame}
