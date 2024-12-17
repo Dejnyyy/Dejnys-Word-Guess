@@ -38,20 +38,27 @@ export default function Home() {
     setCurrentGuess('');
     fetchWord(); // Fetch a new word
   };
-
   const checkGuess = (guess: string) => {
-    let feedback: string[] = [];
+    const targetWord = word.toLowerCase(); // Ensure word is lowercase for comparison
+    const guessLower = guess.toLowerCase(); // Ensure guess is lowercase
+  
+    let newFeedback: string[] = [];
     for (let i = 0; i < 5; i++) {
-      if (guess[i] === word[i]) {
-        feedback.push('green');
-      } else if (word.includes(guess[i])) {
-        feedback.push('yellow');
+      if (guessLower[i] === targetWord[i]) {
+        newFeedback.push('green'); // Correct letter & position
+      } else if (targetWord.includes(guessLower[i])) {
+        newFeedback.push('yellow'); // Correct letter, wrong position
       } else {
-        feedback.push('gray');
+        newFeedback.push('gray'); // Incorrect letter
       }
     }
-    setFeedback((prev) => [...prev, feedback]);
+    console.log('Target Word:', word);
+    console.log('Player Guess:', guess);
+
+    setFeedback((prev) => [...prev, newFeedback]); // Add feedback for this guess
   };
+  
+  
 
   const handleSubmit = () => {
     if (currentGuess.length === 5) {
@@ -66,6 +73,8 @@ export default function Home() {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && currentGuess.length === 5) {
+      console.log('Guesses:', guesses);
+    console.log('Feedback:', feedback);
       handleSubmit();
     }
   };
@@ -77,25 +86,30 @@ export default function Home() {
 
         {/* Grid layout */}
         <div className="space-y-2 mb-4">
-          {guesses.map((guess, rowIndex) => (
-            <div key={rowIndex} className="flex justify-center">
-              {guess.split('').map((letter, colIndex) => (
-                <div
-                  key={colIndex}
-                  className={`w-12 h-12 flex items-center justify-center text-white rounded-lg ${
-                    feedback[rowIndex]?.[colIndex] === 'green'
-                      ? 'bg-green-500'
-                      : feedback[rowIndex]?.[colIndex] === 'yellow'
-                      ? 'bg-yellow-500'
-                      : 'bg-gray-400'
-                  }`}
-                >
-                  {letter.toUpperCase()}
-                </div>
-              ))}
-            </div>
-          ))}
+  {guesses.map((guess, rowIndex) => (
+    <div key={rowIndex} className="flex justify-center">
+      {guess.split('').map((letter, colIndex) => (
+        <div
+          key={colIndex}
+          className={`w-12 h-12 flex items-center justify-center text-white font-bold rounded-lg
+            ${
+              feedback[rowIndex] && feedback[rowIndex][colIndex] === 'green'
+                ? 'bg-green-500'
+                : feedback[rowIndex] && feedback[rowIndex][colIndex] === 'yellow'
+                ? 'bg-yellow-500'
+                : feedback[rowIndex] && feedback[rowIndex][colIndex] === 'gray'
+                ? 'bg-gray-400'
+                : 'bg-gray-200'
+            }`}
+        >
+          {letter.toUpperCase()}
         </div>
+      ))}
+    </div>
+  ))}
+</div>
+
+
 
         {/* Input and button */}
         <input
@@ -108,7 +122,7 @@ export default function Home() {
           disabled={guesses.length >= 6 || guesses.includes(word)}
         />
         <button
-          onClick={handleSubmit}
+          onClick={handleSubmit }
           className="w-full p-2 bg-blue-500 text-white rounded disabled:bg-gray-400"
           disabled={currentGuess.length !== 5 || guesses.length >= 6 || guesses.includes(word)}
         >
