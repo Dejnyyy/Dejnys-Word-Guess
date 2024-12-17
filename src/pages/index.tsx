@@ -44,12 +44,10 @@ export default function Home() {
   
     let newFeedback: string[] = Array(5).fill('gray'); // Default all feedback to 'gray'
     const targetLetterCount: { [key: string]: number } = {}; // Track letter frequency in target word
-  
     // Step 1: Count letters in the target word
     for (let letter of targetWord) {
       targetLetterCount[letter] = (targetLetterCount[letter] || 0) + 1;
     }
-  
     // Step 2: Check for correct letters in correct positions (Green)
     for (let i = 0; i < 5; i++) {
       if (guessLower[i] === targetWord[i]) {
@@ -57,7 +55,6 @@ export default function Home() {
         targetLetterCount[guessLower[i]] -= 1; // Reduce count as it has been used
       }
     }
-  
     // Step 3: Check for correct letters in incorrect positions (Yellow)
     for (let i = 0; i < 5; i++) {
       if (newFeedback[i] === 'gray' && targetWord.includes(guessLower[i]) && targetLetterCount[guessLower[i]] > 0) {
