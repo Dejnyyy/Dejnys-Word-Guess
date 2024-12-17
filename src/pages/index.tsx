@@ -39,8 +39,8 @@ export default function Home() {
     fetchWord(); // Fetch a new word
   };
   const checkGuess = (guess: string) => {
-    const targetWord = word.toLowerCase(); // Ensure word is lowercase for comparison
-    const guessLower = guess.toLowerCase(); // Ensure guess is lowercase
+    const targetWord = word.toUpperCase(); 
+    const guessLower = guess.toUpperCase(); 
   
     let newFeedback: string[] = [];
     for (let i = 0; i < 5; i++) {
@@ -65,11 +65,15 @@ export default function Home() {
       checkGuess(currentGuess);
       setGuesses((prev) => [...prev, currentGuess]);
       setCurrentGuess('');
-      if (guesses.length >= 5 || currentGuess === word) {
+  
+      if (currentGuess === word) {
         setShowModal(true);
+      } else if (guesses.length >= 5) {
+        setShowModal(true); // If 6 tries are done and not guessed, show the word
       }
     }
   };
+  
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && currentGuess.length === 5) {
@@ -115,7 +119,7 @@ export default function Home() {
         <input
           type="text"
           value={currentGuess}
-          onChange={(e) => setCurrentGuess(e.target.value.toLowerCase())}
+          onChange={(e) => setCurrentGuess(e.target.value.toUpperCase())}
           onKeyDown={handleKeyDown}
           className="w-full p-2 text-center border border-gray-300 rounded mb-4"
           maxLength={5}
@@ -149,43 +153,47 @@ export default function Home() {
       </div>
 
       {/* Modal */}
-      {showModal && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
-          onClick={() => setShowModal(false)}
-        >
-          <div
-            className="bg-white p-6 pt-4 rounded-lg shadow-lg relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setShowModal(false)}
-              className="absolute top-2 right-4 font-bold text-gray-600 text-2xl "
-            >
-              &times;
-            </button>
-            <h2 className="text-xl font-bold mb-4">Game Over!</h2>
-            <p className="text-lg mb-4">
-              The Wordle was: <strong>{word}</strong>
-            </p>
+      {/* Modal for Game Over or Winning */}
+{showModal && (
+  <div
+    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+    onClick={() => setShowModal(false)}
+  >
+    <div
+      className="bg-white p-6 pt-4 rounded-lg shadow-lg relative"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button
+        onClick={() => setShowModal(false)}
+        className="absolute top-2 right-4 font-bold text-gray-600 text-2xl "
+      >
+        &times;
+      </button>
+      <h2 className="text-xl font-bold mb-4">{currentGuess === word ? 'You Win!' : 'Game Over!'}</h2>
+      <p className="text-lg mb-4">
+        {currentGuess === word
+          ? `Congratulations! You guessed the word in ${guesses.length + 1} attempts!`
+          : `The Wordle was: ${word}`}
+      </p>
 
-            <div className="flex justify-between">
-              <button
-                onClick={restartGame}
-                className="p-2 bg-green-500 text-white rounded w-1/2 mr-1"
-              >
-                Restart
-              </button>
-              <button
-                onClick={() => setShowModal(false)}
-                className="p-2 bg-gray-700 text-white rounded w-1/2 ml-1"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <div className="flex justify-between">
+        <button
+          onClick={restartGame}
+          className="p-2 bg-green-500 text-white rounded w-1/2 mr-1"
+        >
+          Restart
+        </button>
+        <button
+          onClick={() => setShowModal(false)}
+          className="p-2 bg-gray-700 text-white rounded w-1/2 ml-1"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
