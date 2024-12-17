@@ -43,7 +43,7 @@ export default function Home() {
     const guessLower = guess.toLowerCase();
     let newFeedback: string[] = Array(5).fill('gray');
     const targetLetterCount: { [key: string]: number } = {};
-
+    console.log(word)
     for (let letter of targetWord) {
       targetLetterCount[letter] = (targetLetterCount[letter] || 0) + 1;
     }
@@ -127,7 +127,7 @@ export default function Home() {
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
       <div className="w-full max-w-sm p-4 bg-white shadow-md rounded-lg">
-        <h1 className="text-2xl text-center font-bold mb-4">Dejny's Wordly</h1>
+        <h1 className="text-2xl text-center bg-gradient-to-br from-yellow-400 via-pink-600  to-purple-600 text-transparent bg-clip-text font-bold mb-4">Dejny's Wordly</h1>
 
         {/* Grid layout */}
         <div className="space-y-2 mb-4">
@@ -155,15 +155,21 @@ export default function Home() {
         <input
           type="text"
           value={currentGuess}
-          onChange={(e) => setCurrentGuess(e.target.value.toUpperCase())}
           onKeyDown={handleKeyDown}
           className="w-full p-2 text-center border border-gray-300 rounded mb-4"
           maxLength={5}
+          onChange={(e) => {
+            const input = e.target.value;
+            // Allow only letters a-z and A-Z
+            if (/^[a-zA-Z]*$/.test(input)) {
+              setCurrentGuess(input.toUpperCase());
+            }
+          }}
           placeholder="Type your guess..."
         />
         <button
           onClick={handleSubmit}
-          className="w-full p-2 bg-blue-500 text-white rounded disabled:bg-gray-400 mb-4"
+          className="w-full p-2  font-bold bg-gradient-to-br from-yellow-400 via-pink-600  to-purple-600 text-white rounded disabled:bg-gray-400 mb-4"
           disabled={currentGuess.length !== 5}
         >
           Submit Guess
@@ -191,13 +197,24 @@ export default function Home() {
               {guesses.includes(word) ? 'Congratulations!' : 'Better luck next time!'}
             </h2>
             <p className="text-lg mb-4">
-              {guesses.includes(word)
-                ? `You guessed the word in ${guesses.length} attempts!`
-                : `The word was: ${word}`}
-            </p>
+  {guesses.includes(word) ? (
+    <>
+      You guessed the word in{' '}
+      <span
+        className="bg-gradient-to-br from-yellow-400 via-pink-600  to-purple-600 bg-clip-text text-transparent font-extrabold"
+        style={{ display: 'inline-block' }}
+      >
+        {guesses.length} attempts!
+      </span>
+    </>
+  ) : (
+    `The word was: ${word}`
+  )}
+</p>
+
             <button
               onClick={restartGame}
-              className="p-2 bg-green-500 text-white rounded w-full"
+              className="p-2 bg-gradient-to-br from-yellow-400 via-pink-600  to-purple-600 text-white rounded w-full"
             >
               Restart Game
             </button>
