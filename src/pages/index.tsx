@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { MdWbSunny, MdNightsStay } from 'react-icons/md'; // Material Design Icons
+import { FaMoon } from 'react-icons/fa'; // Font Awesome
 
 export default function Home() {
   // State for the game
@@ -151,13 +153,12 @@ export default function Home() {
       <div className={`w-full max-w-sm p-4 m-auto shadow-md rounded-lg ${isDarkMode ? 'bg-gray-900 shadow-gray-700' : 'bg-gray-100 shadow-gray-300'}`}>
         {/* Light/Dark Mode Toggle Emoji */}
         <span
-          onClick={() => setIsDarkMode(!isDarkMode)}
-          className={`absolute top-4 right-4 text-4xl cursor-pointer transition-all duration-300 ease-in-out p-2 rounded-full ${
-            isDarkMode ? 'bg-yellow-300' : 'bg-blue-500'
-          }`}
-        >
-          {isDarkMode ? '🌞' : '🌙'}
-        </span>
+  onClick={() => setIsDarkMode(!isDarkMode)}
+  className="absolute top-4 right-4 text-4xl cursor-pointer p-2 rounded-full transition-all duration-300"
+  
+>
+  {isDarkMode ? <MdWbSunny className="text-yellow-400" /> : <MdNightsStay className="text-blue-500" />}
+</span>
 
         <h1 className="text-2xl text-center bg-gradient-to-br from-yellow-400 via-pink-600 to-purple-600 text-transparent bg-clip-text font-bold mb-4">
           Dejny's Wordly
@@ -220,7 +221,7 @@ export default function Home() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 pt-4 rounded-lg shadow-lg relative dark:bg-gray-800 dark:text-white">
+          <div className="bg-white p-6 pt-4 w-1/4 rounded-lg shadow-lg relative dark:bg-gray-800 dark:text-white">
             <button
               onClick={() => setShowModal(false)}
               className="absolute top-2 right-4 font-bold text-gray-600 dark:text-gray-200 text-2xl"
