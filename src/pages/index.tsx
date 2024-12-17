@@ -148,7 +148,7 @@ export default function Home() {
 
   return (
     <div className={`h-screen transition-all duration-300 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
-      <div className={`w-full max-w-sm p-4 m-auto i shadow-md rounded-lg ${isDarkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
+      <div className={`w-full max-w-sm p-4 m-auto shadow-md rounded-lg ${isDarkMode ? 'bg-gray-900 shadow-white' : 'bg-gray-100 shadow-black'}`}>
         {/* Light/Dark Mode Toggle Emoji */}
         <span
           onClick={() => setIsDarkMode(!isDarkMode)}
