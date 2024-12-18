@@ -59,50 +59,72 @@ export default function Home() {
     setKeyboardState({});
     fetchWord();
   };
-
   const checkGuess = (guess: string) => {
+    if (!guess || guess.length !== 5) {
+      console.error('Invalid guess: Guess must be a 5-letter string.');
+      return;
+    }
+  
     const targetWord = word.toLowerCase();
     const guessLower = guess.toLowerCase();
     let newFeedback: string[] = Array(5).fill('gray');
     const targetLetterCount: { [key: string]: number } = {};
-    console.log(word)
+  
     for (let letter of targetWord) {
       targetLetterCount[letter] = (targetLetterCount[letter] || 0) + 1;
     }
-
+  
     // Green check
     for (let i = 0; i < 5; i++) {
-      if (guessLower[i] === targetWord[i]) {
-        newFeedback[i] = 'green';
-        targetLetterCount[guessLower[i]] -= 1;
-        setKeyboardState((prev) => ({ ...prev, [guessLower[i]]: 'green' }));
-      }
-    }
-
-    // Yellow check
-    for (let i = 0; i < 5; i++) {
-      if (
-        newFeedback[i] === 'gray' &&
-        targetWord.includes(guessLower[i]) &&
-        targetLetterCount[guessLower[i]] > 0
-      ) {
-        newFeedback[i] = 'yellow';
-        targetLetterCount[guessLower[i]] -= 1;
-        if (!keyboardState[guessLower[i]]) {
-          setKeyboardState((prev) => ({ ...prev, [guessLower[i]]: 'yellow' }));
+      const letter = guessLower[i]; // Access the letter
+    
+      // Check if letter and targetWord[i] are defined before proceeding
+      if (letter !== undefined && targetWord[i] !== undefined) {
+        if (letter === targetWord[i]) {
+          newFeedback[i] = 'green';
+          targetLetterCount[letter] = (targetLetterCount[letter] || 0) - 1;
+          setKeyboardState((prev) => ({ ...prev, [letter]: 'green' }));
         }
       }
     }
-
-    // Gray check
+    
+    
+  
     for (let i = 0; i < 5; i++) {
-      if (newFeedback[i] === 'gray' && !keyboardState[guessLower[i]]) {
-        setKeyboardState((prev) => ({ ...prev, [guessLower[i]]: 'gray' }));
+      const letter = guessLower[i]; // Access the letter
+    
+      // Check if letter is defined and valid
+      if (
+        newFeedback[i] === 'gray' &&
+        letter !== undefined &&
+        targetWord.includes(letter) &&
+        targetLetterCount[letter] !== undefined &&
+        targetLetterCount[letter] > 0
+      ) {
+        newFeedback[i] = 'yellow';
+        targetLetterCount[letter] -= 1;
+    
+        // Update keyboard state safely
+        if (!keyboardState[letter]) {
+          setKeyboardState((prev) => ({ ...prev, [letter]: 'yellow' }));
+        }
       }
     }
-
+    
+  
+    // Gray check
+    for (let i = 0; i < 5; i++) {
+      const letter = guessLower[i]; // Access the letter safely
+    
+      // Check if letter is defined and newFeedback is gray
+      if (newFeedback[i] === 'gray' && letter !== undefined && !keyboardState[letter]) {
+        setKeyboardState((prev) => ({ ...prev, [letter]: 'gray' }));
+      }
+    }
+  
     setFeedback((prev) => [...prev, newFeedback]);
   };
+  
 
   const handleSubmit = () => {
     if (currentGuess.length === 5) {
