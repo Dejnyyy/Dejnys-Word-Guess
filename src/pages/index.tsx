@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { MdWbSunny, MdNightsStay } from 'react-icons/md'; // Material Design Icons
+import { useCallback } from "react";
 
 export default function Home() {
   // State for the game
@@ -8,121 +9,114 @@ export default function Home() {
   const [currentGuess, setCurrentGuess] = useState<string>('');
   const [feedback, setFeedback] = useState<string[][]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [keyboardState, setKeyboardState] = useState<{ [key: string]: string }>({});
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false); // Default to false
+  const [keyboardState, setKeyboardState] = useState<Record<string, string>>({});
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false); 
 
-  // On client-side mount, check localStorage
+  
   useEffect(() => {
-    const savedMode = localStorage.getItem('isDarkMode');
-    if (savedMode !== null) {
-      setIsDarkMode(JSON.parse(savedMode));
-    }
+    const savedMode = localStorage.getItem("isDarkMode");
+    setIsDarkMode(savedMode === "true");
   }, []);
-
-  // Function to fetch a random 5-letter word
-  const fetchWord = async () => {
+  const fetchWord = useCallback(async () => {
     try {
-      const response = await fetch('https://api.datamuse.com/words?sp=?????'); // Fetch 5-letter words
-      const data = await response.json();
-      if (data.length > 0) {
-        const randomWord = data[Math.floor(Math.random() * data.length)].word;
-        setWord(randomWord.toUpperCase());
-      } else {
-        console.error('No words found from the Datamuse API');
+      const response = await fetch("https://api.datamuse.com/words?sp=?????");
+      const data = (await response.json()) as { word: string }[]; // Explicitly assert API response
+  
+      // Safely extract the words into a string[] array
+      const words: string[] = data.map((item) => item.word);
+  
+      if (words.length > 0) {
+        const randomIndex = Math.floor(Math.random() * words.length);
+        const randomWord = words[randomIndex];
+        if (randomWord) {
+          setWord(randomWord.toUpperCase());
+        }} else {
+        console.error("No words found from the Datamuse API");
       }
     } catch (error) {
-      console.error('Error fetching word:', error);
+      console.error("Error fetching word:", error);
     }
-  };
-
-  useEffect(() => {
-    fetchWord();
   }, []);
+  
+useEffect(() => {
+  void fetchWord();
+}, [fetchWord]);
+
 
   useEffect(() => {
-    // Apply dark or light mode to the html element
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark'); // Add the 'dark' class to the html element
-    } else {
-      document.documentElement.classList.remove('dark'); // Remove the 'dark' class
+    const savedMode = localStorage.getItem("isDarkMode");
+    if (savedMode !== null) {
+      setIsDarkMode(JSON.parse(savedMode) as boolean); // Cast to boolean
     }
-    // Save the dark mode preference in localStorage
-    localStorage.setItem('isDarkMode', JSON.stringify(isDarkMode));
-  }, [isDarkMode]); // Re-run when dark mode state changes
-
+  }, []);
+  
+  
   const restartGame = () => {
     setGuesses([]);
     setFeedback([]);
     setShowModal(false);
     setCurrentGuess('');
     setKeyboardState({});
-    fetchWord();
+    void fetchWord();
   };
   const checkGuess = (guess: string) => {
     if (!guess || guess.length !== 5) {
-      console.error('Invalid guess: Guess must be a 5-letter string.');
+      console.error("Invalid guess: Guess must be a 5-letter string.");
       return;
     }
-  
     const targetWord = word.toLowerCase();
     const guessLower = guess.toLowerCase();
-    let newFeedback: string[] = Array(5).fill('gray');
-    const targetLetterCount: { [key: string]: number } = {};
-  
-    for (let letter of targetWord) {
-      targetLetterCount[letter] = (targetLetterCount[letter] || 0) + 1;
-    }
-  
-    // Green check
-    for (let i = 0; i < 5; i++) {
-      const letter = guessLower[i]; // Access the letter
+    const newFeedback: string[] = Array<string>(5).fill("gray");
+    const targetLetterCount: Record<string, number> = {};
     
-      // Check if letter and targetWord[i] are defined before proceeding
-      if (letter !== undefined && targetWord[i] !== undefined) {
-        if (letter === targetWord[i]) {
-          newFeedback[i] = 'green';
-          targetLetterCount[letter] = (targetLetterCount[letter] || 0) - 1;
-          setKeyboardState((prev) => ({ ...prev, [letter]: 'green' }));
-        }
-      }
+    // Build target letter counts
+    for (const letter of targetWord) {
+      targetLetterCount[letter] = (targetLetterCount[letter] ?? 0) + 1;
     }
-    
     
   
     for (let i = 0; i < 5; i++) {
       const letter = guessLower[i]; // Access the letter
-    
-      // Check if letter is defined and valid
-      if (
-        newFeedback[i] === 'gray' &&
-        letter !== undefined &&
-        targetWord.includes(letter) &&
-        targetLetterCount[letter] !== undefined &&
-        targetLetterCount[letter] > 0
-      ) {
-        newFeedback[i] = 'yellow';
-        targetLetterCount[letter] -= 1;
-    
-        // Update keyboard state safely
-        if (!keyboardState[letter]) {
-          setKeyboardState((prev) => ({ ...prev, [letter]: 'yellow' }));
+      if (letter && letter === targetWord[i]) {
+        newFeedback[i] = "green";
+        if (targetLetterCount[letter] !== undefined) { // Ensure letter exists in the map
+          targetLetterCount[letter] -= 1; // Decrement count for green match
         }
+        setKeyboardState((prev) => ({ ...prev, [letter]: "green" }));
       }
     }
     
   
-    // Gray check
+   // Second pass: Mark yellow (correct letter, wrong position)
+for (let i = 0; i < 5; i++) {
+  const letter = guessLower[i];
+  if (
+    letter && // Ensure letter is defined
+    newFeedback[i] === "gray" &&
+    targetLetterCount[letter] !== undefined && // Ensure the count exists
+    targetLetterCount[letter] > 0
+  ) {
+    newFeedback[i] = "yellow";
+    targetLetterCount[letter] -= 1; // Decrement count for yellow match
+    setKeyboardState((prev) =>
+      prev[letter] === "green" ? prev : { ...prev, [letter]: "yellow" }
+    );
+  }
+}
+
+  
+    // Gray check: Remaining letters
     for (let i = 0; i < 5; i++) {
-      const letter = guessLower[i]; // Access the letter safely
-    
-      // Check if letter is defined and newFeedback is gray
-      if (newFeedback[i] === 'gray' && letter !== undefined && !keyboardState[letter]) {
-        setKeyboardState((prev) => ({ ...prev, [letter]: 'gray' }));
+      const letter = guessLower[i];
+      if (letter && newFeedback[i] === "gray" && !keyboardState[letter]) {
+        setKeyboardState((prev) => ({ ...prev, [letter]: "gray" }));
       }
     }
   
     setFeedback((prev) => [...prev, newFeedback]);
   };
+  
+  
   
 
   const handleSubmit = () => {
@@ -190,7 +184,7 @@ export default function Home() {
 </span>
 
         <h1 className="text-4xl text-center bg-gradient-to-br from-yellow-400 via-pink-600 to-purple-600 text-transparent bg-clip-text font-bold mb-4">
-          Dejny's Wordly
+          Dejny&apos;s Wordly
         </h1>
 
         {/* Grid layout */}
