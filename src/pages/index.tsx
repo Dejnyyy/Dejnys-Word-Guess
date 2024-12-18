@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { MdWbSunny, MdNightsStay } from 'react-icons/md'; // Material Design Icons
 import { useCallback } from "react";
 import { MdRefresh } from 'react-icons/md';
+import Link from 'next/link';
 
 export default function Home() {
   // State for the game
@@ -104,8 +105,6 @@ for (let i = 0; i < 5; i++) {
     );
   }
 }
-
-  
     // Gray check: Remaining letters
     for (let i = 0; i < 5; i++) {
       const letter = guessLower[i];
@@ -116,9 +115,6 @@ for (let i = 0; i < 5; i++) {
   
     setFeedback((prev) => [...prev, newFeedback]);
   };
-  
-  
-  
 
   const handleSubmit = () => {
     if (currentGuess.length === 5) {
@@ -170,6 +166,13 @@ for (let i = 0; i < 5; i++) {
       isDarkMode ? 'bg-gray-900' : 'bg-gray-100'
     }`}
   >
+     <Link
+      href="https://dejny.eu"
+      target='_blank'
+      className="absolute top-4 left-1/2  transform -translate-x-1/2 text-lg font-bold text-transparent bg-gradient-to-br from-yellow-400 via-pink-600 to-purple-600 bg-clip-text hover:opacity-90 transition-all duration-300"
+    >
+      Dejny.eu
+    </Link>
     <div
       className={`w-full max-w-sm p-4 shadow-md rounded-lg ${
         isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'
