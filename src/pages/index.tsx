@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { MdWbSunny, MdNightsStay } from 'react-icons/md'; // Material Design Icons
-import { FaMoon } from 'react-icons/fa'; // Font Awesome
 
 export default function Home() {
   // State for the game
