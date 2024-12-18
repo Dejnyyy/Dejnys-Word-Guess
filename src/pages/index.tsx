@@ -232,16 +232,24 @@ for (let i = 0; i < 5; i++) {
           }}
           placeholder="Type your guess..."
         />
-        <button
+    <button
   onClick={handleSubmit}
   disabled={currentGuess.length !== 5}
-  className={`w-full p-2 bg-gradient-to-br mb-4 from-yellow-400 via-pink-600 to-purple-600 text-white font-bold rounded 
-    transition-all duration-300 ${
+  className={`w-full p-2 text-white font-bold rounded relative overflow-hidden 
+    transition-all duration-300 mb-4 ${
       currentGuess.length !== 5 ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'
     }`}
+  style={{
+    background: "linear-gradient(90deg, #facc15, #ec4899, #a855f7, #facc15)",
+    backgroundSize: "200% 200%",
+    animation: "moveGradient 2s infinite alternate linear",
+  }}
 >
   Submit Guess
 </button>
+
+
+
 
         {/* Keyboard */}
         <div className="space-y-2">
