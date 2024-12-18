@@ -173,19 +173,18 @@ for (let i = 0; i < 5; i++) {
     >
       Dejny.eu
     </Link>
-    <div
-      className={`w-full max-w-sm p-4 shadow-md rounded-lg ${
-        isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'
-      }`}
-    >
-       {/* Light/Dark Mode Toggle Emoji */}
-        <span
+     {/* Light/Dark Mode Toggle Emoji */}
+     <span
   onClick={() => setIsDarkMode(!isDarkMode)}
   className="absolute top-4 right-4 text-4xl cursor-pointer p-2 rounded-full transition-all duration-300"
-  
 >
   {isDarkMode ? <MdNightsStay className="text-blue-500" /> : <MdWbSunny className="text-yellow-400" /> }
 </span>
+    <div
+      className={`w-full max-w-sm p-4 shadow-md rounded-lg mt-12 ${
+        isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'
+      }`}
+    >
 
         <h1 className="text-4xl text-center bg-gradient-to-br from-yellow-400 via-pink-600 to-purple-600 text-transparent bg-clip-text font-bold mb-4">
           Dejny&apos;s Wordly
@@ -196,28 +195,46 @@ for (let i = 0; i < 5; i++) {
 >
   <MdRefresh className={isDarkMode ? "text-gray-300" : "text-gray-700 "} />
 </span>
+{/* Grid layout with boxes centered and numbers aligned */}
+<div className="space-y-2 mb-4">
+  {Array.from({ length: 6 }, (_, rowIndex) => {
+    const isCurrentRow = rowIndex === guesses.length;
+    const rowNumber = 6 - rowIndex; // Countdown from 6
 
-        {/* Grid layout */}
-        <div className="space-y-2 mb-4">
-          {guesses.map((guess, rowIndex) => (
-            <div key={rowIndex} className="flex justify-center">
-              {guess.split('').map((letter, colIndex) => (
-                <div
-                  key={colIndex}
-                  className={`w-12 h-12 flex items-center justify-center text-white m-0.5 font-bold rounded-lg ${
-                    feedback[rowIndex]?.[colIndex] === 'green'
-                      ? 'bg-green-500'
-                      : feedback[rowIndex]?.[colIndex] === 'yellow'
-                      ? 'bg-yellow-500'
-                      : 'bg-gray-400'
-                  }`}
-                >
-                  {letter.toUpperCase()}
-                </div>
-              ))}
-            </div>
-          ))}
+    return (
+      <div key={rowIndex} className="flex items-center">
+        {/* Row number */}
+        <span className="text-left absolute font-bold text-gray-500">
+          {rowNumber}
+        </span>
+
+        {/* Centered row boxes */}
+        <div className="flex justify-center w-full">
+          {Array.from({ length: 5 }, (_, colIndex) => {
+            const letter = guesses[rowIndex]?.[colIndex] || (isCurrentRow ? currentGuess[colIndex] : '');
+            const feedbackColor =
+              feedback[rowIndex]?.[colIndex] === 'green'
+                ? 'bg-green-500'
+                : feedback[rowIndex]?.[colIndex] === 'yellow'
+                ? 'bg-yellow-500'
+                : guesses[rowIndex]
+                ? 'bg-gray-400'
+                : 'bg-gray-700';
+
+            return (
+              <div
+                key={colIndex}
+                className={`w-12 h-12 flex items-center justify-center font-bold text-white m-0.5 rounded-lg ${feedbackColor}`}
+              >
+                {letter?.toUpperCase()}
+              </div>
+            );
+          })}
         </div>
+      </div>
+    );
+  })}
+</div>
 
         {/* Input and button */}
         <input
