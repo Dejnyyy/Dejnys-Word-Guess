@@ -189,9 +189,9 @@ for (let i = 0; i < 5; i++) {
         </h1>
         <span
   onClick={restartGame}
-  className="absolute top-4 left-4 text-4xl cursor-pointer p-2 rounded-full transition-all duration-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+  className={`absolute top-4 left-4 text-4xl cursor-pointer p-2 rounded-full transition-all duration-300 ${isDarkMode ? "text-gray-300 hover:bg-gray-500" : "text-gray-700 hover:bg-gray-300"}`}
 >
-  <MdRefresh className={isDarkMode ? "text-gray-300" : "text-gray-700"} />
+  <MdRefresh className={isDarkMode ? "text-gray-300" : "text-gray-700 "} />
 </span>
 
         {/* Grid layout */}
@@ -221,7 +221,7 @@ for (let i = 0; i < 5; i++) {
           type="text"
           value={currentGuess}
           onKeyDown={handleKeyDown}
-          className={`w-full p-2 text-center border border-gray-300 rounded mb-4 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-black'} `}
+          className={`w-full p-2 text-center border rounded mb-4 ${isDarkMode ? 'bg-gray-900 text-white border-gray-700' : 'bg-gray-100 text-black border-gray-300'} `}
           maxLength={5}
           onChange={(e) => {
             const input = e.target.value;
