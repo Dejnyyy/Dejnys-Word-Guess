@@ -149,9 +149,17 @@ export default function Home() {
   );
 
   return (
-    <div className={`h-screen transition-all duration-300 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
-      <div className={`w-full max-w-sm p-4 m-auto shadow-md rounded-lg ${isDarkMode ? 'bg-gray-900 shadow-gray-700' : 'bg-gray-100 shadow-gray-300'}`}>
-        {/* Light/Dark Mode Toggle Emoji */}
+    <div
+    className={`flex items-center justify-center h-screen transition-all duration-300 ${
+      isDarkMode ? 'bg-gray-900' : 'bg-gray-100'
+    }`}
+  >
+    <div
+      className={`w-full max-w-sm p-4 shadow-md rounded-lg ${
+        isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'
+      }`}
+    >
+       {/* Light/Dark Mode Toggle Emoji */}
         <span
   onClick={() => setIsDarkMode(!isDarkMode)}
   className="absolute top-4 right-4 text-4xl cursor-pointer p-2 rounded-full transition-all duration-300"
@@ -203,12 +211,15 @@ export default function Home() {
           placeholder="Type your guess..."
         />
         <button
-          onClick={handleSubmit}
-          className="w-full p-2  font-bold bg-gradient-to-br from-yellow-400 via-pink-600  to-purple-600 text-white rounded disabled:bg-gray-400 mb-4"
-          disabled={currentGuess.length !== 5}
-        >
-          Submit Guess
-        </button>
+  onClick={handleSubmit}
+  disabled={currentGuess.length !== 5}
+  className={`w-full p-2 bg-gradient-to-br mb-4 from-yellow-400 via-pink-600 to-purple-600 text-white font-bold rounded 
+    transition-all duration-300 ${
+      currentGuess.length !== 5 ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'
+    }`}
+>
+  Submit Guess
+</button>
 
         {/* Keyboard */}
         <div className="space-y-2">
