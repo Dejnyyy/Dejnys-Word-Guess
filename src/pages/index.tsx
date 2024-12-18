@@ -176,10 +176,15 @@ for (let i = 0; i < 5; i++) {
      {/* Light/Dark Mode Toggle Emoji */}
      <span
   onClick={() => setIsDarkMode(!isDarkMode)}
-  className="absolute top-4 right-4 text-4xl cursor-pointer p-2 rounded-full transition-all duration-300"
+  className="absolute top-4 right-4 text-2xl cursor-pointer p-2 rounded-full transition-all duration-300"
 >
-  {isDarkMode ? <MdNightsStay className="text-blue-500" /> : <MdWbSunny className="text-yellow-400" /> }
+  {isDarkMode ? (
+    <MdNightsStay className="text-blue-500" />
+  ) : (
+    <MdWbSunny className="text-yellow-400" />
+  )}
 </span>
+
     <div
       className={`w-full max-w-sm p-4 shadow-md rounded-lg mt-12 ${
         isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'
@@ -193,7 +198,7 @@ for (let i = 0; i < 5; i++) {
   onClick={restartGame}
   className={`absolute top-4 left-4 text-4xl cursor-pointer p-2 rounded-full transition-all duration-300 ${isDarkMode ? "text-gray-300 hover:bg-gray-500" : "text-gray-700 hover:bg-gray-300"}`}
 >
-  <MdRefresh className={isDarkMode ? "text-gray-300" : "text-gray-700 "} />
+  <MdRefresh className={isDarkMode ? "text-gray-300 text-2xl" : "text-gray-700 text-2xl"} />
 </span>
 {/* Grid layout with boxes centered and numbers aligned */}
 <div className="space-y-2 mb-4">
