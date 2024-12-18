@@ -1,12 +1,11 @@
+export const runtime = 'edge';
+
 import { createNextApiHandler } from "@trpc/server/adapters/next";
 
 import { appRouter } from "~/server/api/root";
 import { createTRPCContext } from "~/server/api/trpc";
 
-// Edge Runtime requires explicit runtime export
-export const runtime = "edge";
-
-// Adapted tRPC handler for Cloudflare Edge Runtime
+// export API handler
 export default createNextApiHandler({
   router: appRouter,
   createContext: createTRPCContext,
