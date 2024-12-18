@@ -247,7 +247,7 @@ for (let i = 0; i < 5; i++) {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 pt-4 md:w-1/4 rounded-lg shadow-lg relative dark:bg-gray-800 dark:text-white">
+          <div className="bg-white p-6 pt-4 w-5/6 md:w-1/4 rounded-lg shadow-lg relative dark:bg-gray-800 dark:text-white">
             <button
               onClick={() => setShowModal(false)}
               className="absolute top-2 right-4 font-bold text-gray-600 dark:text-gray-200 text-2xl"
