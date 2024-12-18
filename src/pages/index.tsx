@@ -157,7 +157,7 @@ export default function Home() {
   className="absolute top-4 right-4 text-4xl cursor-pointer p-2 rounded-full transition-all duration-300"
   
 >
-  {isDarkMode ? <MdWbSunny className="text-yellow-400" /> : <MdNightsStay className="text-blue-500" />}
+  {isDarkMode ? <MdNightsStay className="text-blue-500" /> : <MdWbSunny className="text-yellow-400" /> }
 </span>
 
         <h1 className="text-2xl text-center bg-gradient-to-br from-yellow-400 via-pink-600 to-purple-600 text-transparent bg-clip-text font-bold mb-4">
