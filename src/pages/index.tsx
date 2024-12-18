@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { MdWbSunny, MdNightsStay } from 'react-icons/md'; // Material Design Icons
 import { useCallback } from "react";
+import { MdRefresh } from 'react-icons/md';
 
 export default function Home() {
   // State for the game
@@ -186,6 +187,12 @@ for (let i = 0; i < 5; i++) {
         <h1 className="text-4xl text-center bg-gradient-to-br from-yellow-400 via-pink-600 to-purple-600 text-transparent bg-clip-text font-bold mb-4">
           Dejny&apos;s Wordly
         </h1>
+        <span
+  onClick={restartGame}
+  className="absolute top-4 left-4 text-4xl cursor-pointer p-2 rounded-full transition-all duration-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+>
+  <MdRefresh className={isDarkMode ? "text-gray-300" : "text-gray-700"} />
+</span>
 
         {/* Grid layout */}
         <div className="space-y-2 mb-4">
