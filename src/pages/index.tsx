@@ -216,7 +216,7 @@ for (let i = 0; i < 5; i++) {
         {/* Centered row boxes */}
         <div className="flex justify-center w-full">
           {Array.from({ length: 5 }, (_, colIndex) => {
-            const letter = guesses[rowIndex]?.[colIndex] || (isCurrentRow ? currentGuess[colIndex] : '');
+            const letter = guesses[rowIndex]?.[colIndex] ?? (isCurrentRow ? currentGuess[colIndex] : '');
             const feedbackColor =
               feedback[rowIndex]?.[colIndex] === 'green'
                 ? 'bg-green-500'
