@@ -224,7 +224,7 @@ for (let i = 0; i < 5; i++) {
                 ? 'bg-yellow-500'
                 : guesses[rowIndex]
                 ? 'bg-gray-400'
-                : 'bg-gray-700';
+                : 'bg-gray-500';
 
             return (
               <div
@@ -277,11 +277,28 @@ for (let i = 0; i < 5; i++) {
 
 
         {/* Keyboard */}
-        <div className="space-y-2">
-          {renderKeyboardRow('QWERTYUIOP')}
-          {renderKeyboardRow('ASDFGHJKL')}
-          {renderKeyboardRow('ZXCVBNM')}
-        </div>
+<div className="space-y-2">
+  {renderKeyboardRow('QWERTYUIOP')}
+  {renderKeyboardRow('ASDFGHJKL')}
+  <div className="flex space-x-1 justify-center">
+  <button
+      className="w-16 h-10 flex items-center justify-center font-bold bg-gradient-to-br from-yellow-400 via-pink-600 to-purple-600 rounded"
+      onClick={() => setCurrentGuess((prev) => prev.slice(0, -1))}
+    >
+      Del
+    </button>
+    {renderKeyboardRow('ZXCVBNM')}
+   
+    <button
+      className="w-16 h-10 flex items-center justify-center font-bold bg-gradient-to-br from-yellow-400 via-pink-600 to-purple-600  rounded"
+      onClick={handleSubmit}
+      disabled={currentGuess.length !== 5}
+    >
+      Enter
+    </button>
+  </div>
+</div>
+
       </div>
 
       {/* Modal */}
