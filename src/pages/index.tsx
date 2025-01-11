@@ -243,14 +243,14 @@ export default function Home() {
           {renderKeyboardRow('ASDFGHJKL')}
           <div className="flex space-x-1 justify-center">
             <button
-              className="w-16 h-10 flex items-center justify-center font-bold bg-gradient-to-br from-yellow-400 via-pink-600 to-purple-600 rounded"
+              className="w-16 h-10 flex text-white items-center justify-center font-bold bg-gradient-to-br from-yellow-400 via-pink-600 to-purple-600 rounded"
               onClick={() => handleKeyInput('BACKSPACE')}
             >
               Del
             </button>
             {renderKeyboardRow('ZXCVBNM')}
             <button
-              className="w-16 h-10 flex items-center justify-center font-bold bg-gradient-to-br from-yellow-400 via-pink-600 to-purple-600 rounded"
+              className="w-16 h-10 flex items-center text-white justify-center font-bold bg-gradient-to-br from-yellow-400 via-pink-600 to-purple-600 rounded"
               onClick={() => handleKeyInput('ENTER')}
               disabled={currentGuess.length !== 5}
             >
