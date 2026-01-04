@@ -1,24 +1,26 @@
-import { useState, useEffect, useCallback } from 'react';
-import { MdWbSunny, MdNightsStay, MdRefresh } from 'react-icons/md';
-import Link from 'next/link';
+import { useState, useEffect, useCallback } from "react";
+import { MdWbSunny, MdNightsStay, MdRefresh } from "react-icons/md";
+import Link from "next/link";
 
 export default function Home() {
-  const [word, setWord] = useState<string>(''); // Word to guess
+  const [word, setWord] = useState<string>(""); // Word to guess
   const [guesses, setGuesses] = useState<string[]>([]);
-  const [currentGuess, setCurrentGuess] = useState<string>('');
+  const [currentGuess, setCurrentGuess] = useState<string>("");
   const [feedback, setFeedback] = useState<string[][]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [keyboardState, setKeyboardState] = useState<Record<string, string>>({});
+  const [keyboardState, setKeyboardState] = useState<Record<string, string>>(
+    {},
+  );
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
 
   useEffect(() => {
-    const savedMode = localStorage.getItem('isDarkMode');
-    setIsDarkMode(savedMode === 'true');
+    const savedMode = localStorage.getItem("isDarkMode");
+    setIsDarkMode(savedMode === "true");
   }, []);
 
   const fetchWord = useCallback(async () => {
     try {
-      const response = await fetch('https://api.datamuse.com/words?sp=?????');
+      const response = await fetch("https://api.datamuse.com/words?sp=?????");
       const data = (await response.json()) as { word: string }[];
 
       const words: string[] = data.map((item) => item.word);
@@ -30,10 +32,10 @@ export default function Home() {
           setWord(randomWord.toUpperCase());
         }
       } else {
-        console.error('No words found from the Datamuse API');
+        console.error("No words found from the Datamuse API");
       }
     } catch (error) {
-      console.error('Error fetching word:', error);
+      console.error("Error fetching word:", error);
     }
   }, []);
 
@@ -45,19 +47,19 @@ export default function Home() {
     setGuesses([]);
     setFeedback([]);
     setShowModal(false);
-    setCurrentGuess('');
+    setCurrentGuess("");
     setKeyboardState({});
     void fetchWord();
   };
 
   const checkGuess = (guess: string) => {
     if (!guess || guess.length !== 5) {
-      console.error('Invalid guess: Guess must be a 5-letter string.');
+      console.error("Invalid guess: Guess must be a 5-letter string.");
       return;
     }
     const targetWord = word.toLowerCase();
     const guessLower = guess.toLowerCase();
-    const newFeedback: string[] = Array<string>(5).fill('gray');
+    const newFeedback: string[] = Array<string>(5).fill("gray");
     const targetLetterCount: Record<string, number> = {};
 
     for (const letter of targetWord) {
@@ -67,11 +69,11 @@ export default function Home() {
     for (let i = 0; i < 5; i++) {
       const letter = guessLower[i];
       if (letter && letter === targetWord[i]) {
-        newFeedback[i] = 'green';
+        newFeedback[i] = "green";
         if (targetLetterCount[letter] !== undefined) {
           targetLetterCount[letter] -= 1;
         }
-        setKeyboardState((prev) => ({ ...prev, [letter]: 'green' }));
+        setKeyboardState((prev) => ({ ...prev, [letter]: "green" }));
       }
     }
 
@@ -79,22 +81,22 @@ export default function Home() {
       const letter = guessLower[i];
       if (
         letter &&
-        newFeedback[i] === 'gray' &&
+        newFeedback[i] === "gray" &&
         targetLetterCount[letter] !== undefined &&
         targetLetterCount[letter] > 0
       ) {
-        newFeedback[i] = 'yellow';
+        newFeedback[i] = "yellow";
         targetLetterCount[letter] -= 1;
         setKeyboardState((prev) =>
-          prev[letter] === 'green' ? prev : { ...prev, [letter]: 'yellow' }
+          prev[letter] === "green" ? prev : { ...prev, [letter]: "yellow" },
         );
       }
     }
 
     for (let i = 0; i < 5; i++) {
       const letter = guessLower[i];
-      if (letter && newFeedback[i] === 'gray' && !keyboardState[letter]) {
-        setKeyboardState((prev) => ({ ...prev, [letter]: 'gray' }));
+      if (letter && newFeedback[i] === "gray" && !keyboardState[letter]) {
+        setKeyboardState((prev) => ({ ...prev, [letter]: "gray" }));
       }
     }
 
@@ -102,7 +104,7 @@ export default function Home() {
   };
 
   const handleKeyInput = (key: string) => {
-    if (key === 'ENTER') {
+    if (key === "ENTER") {
       if (currentGuess.length === 5) {
         checkGuess(currentGuess);
         setGuesses((prev) => [...prev, currentGuess]);
@@ -111,9 +113,9 @@ export default function Home() {
         } else if (guesses.length + 1 >= 6) {
           setShowModal(true);
         }
-        setCurrentGuess('');
+        setCurrentGuess("");
       }
-    } else if (key === 'BACKSPACE') {
+    } else if (key === "BACKSPACE") {
       setCurrentGuess((prev) => prev.slice(0, -1));
     } else if (/^[A-Z]$/.test(key)) {
       setCurrentGuess((prev) => (prev.length < 5 ? prev + key : prev));
@@ -126,132 +128,166 @@ export default function Home() {
   };
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentGuess, guesses]);
 
   const renderKeyboardRow = (letters: string) => (
-    <div className="flex space-x-1 justify-center">
-      {letters.split('').map((letter) => (
-        <button
-          key={letter}
-          className={`w-8 h-10 flex items-center justify-center font-bold rounded ${
-            keyboardState[letter.toLowerCase()] === 'green'
-              ? 'bg-green-500'
-              : keyboardState[letter.toLowerCase()] === 'yellow'
-              ? 'bg-yellow-500'
-              : keyboardState[letter.toLowerCase()] === 'gray'
-              ? 'bg-gray-400'
-              : isDarkMode
-              ? 'bg-gray-700 text-white'
-              : 'bg-gray-200 text-black'
-          }`}
-          onClick={() => handleKeyInput(letter.toUpperCase())}
-        >
-          {letter}
-        </button>
-      ))}
+    <div className="flex justify-center gap-1.5">
+      {letters.split("").map((letter) => {
+        const state = keyboardState[letter.toLowerCase()];
+        let bgClass = isDarkMode
+          ? "bg-gray-700 text-white"
+          : "bg-gray-200 text-gray-900";
+
+        if (state === "green")
+          bgClass = "bg-emerald-500 text-white shadow-md shadow-emerald-500/30";
+        else if (state === "yellow")
+          bgClass = "bg-amber-500 text-white shadow-md shadow-amber-500/30";
+        else if (state === "gray")
+          bgClass = "bg-gray-500/50 text-white dark:bg-gray-600/50";
+
+        return (
+          <button
+            key={letter}
+            className={`flex h-12 w-9 items-center justify-center rounded-lg font-bold transition-all active:scale-95 ${bgClass}`}
+            onClick={() => handleKeyInput(letter.toUpperCase())}
+          >
+            {letter}
+          </button>
+        );
+      })}
     </div>
   );
 
   return (
     <div
-      className={`flex items-center justify-center h-screen transition-all duration-300 ${
-        isDarkMode ? 'bg-gray-900' : 'bg-gray-100'
+      className={`relative flex min-h-screen items-center justify-center overflow-hidden transition-all duration-300 ${
+        isDarkMode ? "bg-gray-900" : "bg-gray-50"
       }`}
     >
+      {/* Background Gradient Animation */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-30"
+        style={{
+          background:
+            "linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)",
+          backgroundSize: "400% 400%",
+          animation: "moveGradient 15s ease infinite",
+        }}
+      />
+
       <Link
         href="https://dejny.eu"
         target="_blank"
-        className="absolute top-4 left-1/2 transform -translate-x-1/2 text-lg font-bold text-transparent bg-gradient-to-br from-yellow-400 via-pink-600 to-purple-600 bg-clip-text hover:opacity-90 transition-all duration-300"
+        className="absolute left-1/2 top-6 z-10 -translate-x-1/2 transform bg-gradient-to-r from-amber-400 via-pink-500 to-purple-500 bg-clip-text text-2xl font-extrabold text-transparent transition-opacity hover:opacity-80"
       >
         Dejny.eu
       </Link>
-      <span
-        onClick={() => setIsDarkMode(!isDarkMode)}
-        className="absolute top-4 right-4 text-2xl cursor-pointer p-2 rounded-full transition-all duration-300"
-      >
-        {isDarkMode ? (
-          <MdNightsStay className="text-blue-500" />
-        ) : (
-          <MdWbSunny className="text-yellow-400" />
-        )}
-      </span>
-      <div
-        className={`w-full max-w-sm p-4 shadow-md rounded-lg mt-12 ${
-          isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'
-        }`}
-      >
-        <h1 className="text-4xl text-center bg-gradient-to-br from-yellow-400 via-pink-600 to-purple-600 text-transparent bg-clip-text font-bold mb-4">
-          Dejny&apos;s Wordly
-        </h1>
-        <span
+
+      <div className="absolute right-6 top-6 z-10">
+        <button
+          onClick={() => setIsDarkMode(!isDarkMode)}
+          className="rounded-full bg-white/20 p-3 shadow-lg backdrop-blur-sm transition-all hover:bg-white/30"
+        >
+          {isDarkMode ? (
+            <MdNightsStay className="text-xl text-blue-300" />
+          ) : (
+            <MdWbSunny className="text-xl text-amber-400" />
+          )}
+        </button>
+      </div>
+
+      <div className="absolute left-6 top-6 z-10">
+        <button
           onClick={restartGame}
-          className={`absolute top-4 left-4 text-4xl cursor-pointer p-2 rounded-full transition-all duration-300 ${
-            isDarkMode
-              ? 'text-gray-300 hover:bg-gray-500'
-              : 'text-gray-700 hover:bg-gray-300'
-          }`}
+          className="group rounded-full bg-white/20 p-3 shadow-lg backdrop-blur-sm transition-all hover:bg-white/30"
         >
           <MdRefresh
-            className={isDarkMode ? 'text-gray-300 text-2xl' : 'text-gray-700 text-2xl'}
+            className={`text-xl transition-transform group-hover:rotate-180 ${isDarkMode ? "text-white" : "text-gray-800"}`}
           />
-        </span>
+        </button>
+      </div>
 
-        <div className="space-y-2 mb-4">
+      <div
+        className={`glass-panel mx-4 w-full max-w-md rounded-2xl p-8 transition-colors duration-300`}
+      >
+        <h1 className="mb-8 bg-gradient-to-r from-amber-400 via-pink-500 to-purple-600 bg-clip-text text-center text-5xl font-black text-transparent drop-shadow-sm">
+          Wordly
+        </h1>
+
+        <div className="mb-8 select-none space-y-2">
           {Array.from({ length: 6 }, (_, rowIndex) => {
             const isCurrentRow = rowIndex === guesses.length;
-            const attemptsLeft = 6 - rowIndex; // Countdown from 6
 
             return (
-              <div key={rowIndex} className="flex items-center">
-                <span className="w-6 text-right pr-2 font-bold text-gray-500">
-                  {attemptsLeft}
-                </span>
+              <div key={rowIndex} className="flex justify-center gap-2">
+                {Array.from({ length: 5 }, (_, colIndex) => {
+                  const letter =
+                    guesses[rowIndex]?.[colIndex] ??
+                    (isCurrentRow ? currentGuess[colIndex] : "");
+                  const feedbackVal = feedback[rowIndex]?.[colIndex];
 
-                <div className="flex justify-center w-full">
-                  {Array.from({ length: 5 }, (_, colIndex) => {
-                    const letter =
-                      guesses[rowIndex]?.[colIndex] ??
-                      (isCurrentRow ? currentGuess[colIndex] : '');
-                    const feedbackColor =
-                      feedback[rowIndex]?.[colIndex] === 'green'
-                        ? 'bg-green-500'
-                        : feedback[rowIndex]?.[colIndex] === 'yellow'
-                        ? 'bg-yellow-500'
-                        : guesses[rowIndex]
-                        ? 'bg-gray-400'
-                        : 'bg-gray-500';
+                  let bgColor = isDarkMode
+                    ? "bg-gray-700/50"
+                    : "bg-gray-200/50";
+                  let borderColor = isDarkMode
+                    ? "border-gray-600"
+                    : "border-gray-300";
+                  let textColor = isDarkMode ? "text-white" : "text-gray-900";
 
-                    return (
-                      <div
-                        key={colIndex}
-                        className={`w-12 h-12 flex items-center justify-center font-bold text-white m-0.5 rounded-lg ${feedbackColor}`}
-                      >
-                        {letter?.toUpperCase()}
-                      </div>
-                    );
-                  })}
-                </div>
+                  if (feedbackVal === "green") {
+                    bgColor = "bg-emerald-500";
+                    borderColor = "border-emerald-600";
+                    textColor = "text-white";
+                  } else if (feedbackVal === "yellow") {
+                    bgColor = "bg-amber-500";
+                    borderColor = "border-amber-600";
+                    textColor = "text-white";
+                  } else if (guesses[rowIndex]) {
+                    // Incorrect letter already guessed
+                    bgColor = isDarkMode ? "bg-gray-600" : "bg-gray-500";
+                    borderColor = "border-transparent";
+                    textColor = "text-white";
+                  }
+
+                  // Animation classes
+                  const isFilled = !!letter && isCurrentRow;
+                  const popClass = isFilled ? "animate-pop" : "";
+                  const flipClass = feedbackVal ? "animate-flip" : "";
+                  const delayStyle = feedbackVal
+                    ? { animationDelay: `${colIndex * 100}ms` }
+                    : {};
+
+                  return (
+                    <div
+                      key={colIndex}
+                      style={delayStyle}
+                      className={`flex h-14 w-14 items-center justify-center rounded-xl border-2 text-2xl font-bold shadow-sm transition-all duration-300 ${bgColor} ${borderColor} ${textColor} ${popClass} ${flipClass} `}
+                    >
+                      {letter?.toUpperCase()}
+                    </div>
+                  );
+                })}
               </div>
             );
           })}
         </div>
 
         <div className="space-y-2">
-          {renderKeyboardRow('QWERTYUIOP')}
-          {renderKeyboardRow('ASDFGHJKL')}
-          <div className="flex space-x-1 justify-center">
+          {renderKeyboardRow("QWERTYUIOP")}
+          {renderKeyboardRow("ASDFGHJKL")}
+          <div className="flex justify-center space-x-1.5">
             <button
-              className="w-16 h-10 flex text-white items-center justify-center font-bold bg-gradient-to-br from-yellow-400 via-pink-600 to-purple-600 rounded"
-              onClick={() => handleKeyInput('BACKSPACE')}
+              className="flex h-12 items-center justify-center rounded-lg bg-red-500/80 px-4 font-bold text-white shadow-sm transition hover:bg-red-600/80 active:scale-95"
+              onClick={() => handleKeyInput("BACKSPACE")}
             >
               Del
             </button>
-            {renderKeyboardRow('ZXCVBNM')}
+            {renderKeyboardRow("ZXCVBNM")}
             <button
-              className="w-16 h-10 flex items-center text-white justify-center font-bold bg-gradient-to-br from-yellow-400 via-pink-600 to-purple-600 rounded"
-              onClick={() => handleKeyInput('ENTER')}
+              className="flex h-12 items-center justify-center rounded-lg bg-emerald-500/90 px-4 font-bold text-white shadow-sm transition hover:bg-emerald-600/90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={() => handleKeyInput("ENTER")}
               disabled={currentGuess.length !== 5}
             >
               Enter
@@ -261,34 +297,53 @@ export default function Home() {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 w-5/6 md:w-1/4 rounded-lg shadow-lg relative dark:bg-gray-800 dark:text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="animate-fade-in absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowModal(false)}
+          />
+          <div
+            className={`glass-panel animate-pop relative w-full max-w-sm rounded-2xl p-8 shadow-2xl ${isDarkMode ? "text-white" : "text-gray-900"}`}
+          >
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-2 right-4 font-bold text-gray-600 dark:text-gray-200 text-2xl"
+              className="absolute right-4 top-4 rounded-full p-2 transition hover:bg-black/10"
             >
               &times;
             </button>
-            <h2 className="text-xl font-bold mb-4">
-              {guesses.includes(word) ? 'Congratulations!' : 'Better luck next time!'}
-            </h2>
-            <p className="text-lg mb-4">
+
+            <h2 className="mb-6 text-center text-3xl font-black">
               {guesses.includes(word) ? (
-                <>
-                  You guessed the word in{' '}
-                  <span className="bg-gradient-to-br from-yellow-400 via-pink-600 to-purple-600 bg-clip-text text-transparent font-extrabold">
-                    {guesses.length} attempts!
-                  </span>
-                </>
+                <span className="bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
+                  You Won!
+                </span>
               ) : (
-                `The word was: ${word}`
+                <span className="text-red-500">Game Over</span>
               )}
-            </p>
+            </h2>
+
+            <div className="mb-8 text-center">
+              {guesses.includes(word) ? (
+                <p className="text-lg opacity-90">
+                  You guessed the word in{" "}
+                  <strong className="text-xl text-emerald-500">
+                    {guesses.length}
+                  </strong>{" "}
+                  attempts.
+                </p>
+              ) : (
+                <p className="text-lg opacity-90">
+                  The word was{" "}
+                  <strong className="text-xl text-amber-500">{word}</strong>.
+                </p>
+              )}
+            </div>
+
             <button
               onClick={restartGame}
-              className="p-2 bg-gradient-to-br from-yellow-400 via-pink-600 to-purple-600 text-white rounded w-full"
+              className="w-full rounded-xl bg-gradient-to-r from-blue-500 to-violet-600 py-3 font-bold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95"
             >
-              Restart Game
+              Play Again
             </button>
           </div>
         </div>
