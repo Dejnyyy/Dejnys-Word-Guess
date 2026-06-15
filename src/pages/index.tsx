@@ -1,6 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { MdWbSunny, MdNightsStay, MdRefresh } from "react-icons/md";
 import Link from "next/link";
+import Head from "next/head";
+
+const SITE_URL = "https://wordly.dejny.eu";
+const SITE_TITLE = "Dejny's Wordly – Guess the 5-Letter Word";
+const SITE_DESCRIPTION =
+  "Challenge yourself with Dejny's Wordly! A fun word-guessing game where you have 6 tries to find the hidden 5-letter word. Play now for free!";
+const OG_IMAGE = `${SITE_URL}/dejnyswordle.png`;
 
 export default function Home() {
   const [word, setWord] = useState<string>(""); // Word to guess
@@ -166,6 +173,38 @@ export default function Home() {
         isDarkMode ? "bg-gray-900" : "bg-gray-50"
       }`}
     >
+      <Head>
+        {/* Primary Meta Tags */}
+        <title>{SITE_TITLE}</title>
+        <meta name="title" content={SITE_TITLE} />
+        <meta name="description" content={SITE_DESCRIPTION} />
+        <meta name="author" content="Dejny" />
+        <meta name="theme-color" content={isDarkMode ? "#111827" : "#f9fafb"} />
+        <link rel="canonical" href={SITE_URL} />
+        <link rel="icon" href="/favicon.ico" />
+
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={SITE_URL} />
+        <meta property="og:title" content={SITE_TITLE} />
+        <meta property="og:description" content={SITE_DESCRIPTION} />
+        <meta property="og:image" content={OG_IMAGE} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="Dejny's Wordly" />
+        <meta property="og:locale" content="en_US" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content={SITE_URL} />
+        <meta name="twitter:title" content={SITE_TITLE} />
+        <meta name="twitter:description" content={SITE_DESCRIPTION} />
+        <meta name="twitter:image" content={OG_IMAGE} />
+
+        {/* Additional */}
+        <meta name="robots" content="index, follow" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
       {/* Background Gradient Animation */}
       <div
         className="pointer-events-none absolute inset-0 opacity-30"
