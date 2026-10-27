@@ -9,6 +9,51 @@ const SITE_DESCRIPTION =
   "Challenge yourself with Dejny's Wordly! A fun word-guessing game where you have 6 tries to find the hidden 5-letter word. Play now for free!";
 const OG_IMAGE = `${SITE_URL}/dejnyswordle.png`;
 
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://dejny.eu/#organization",
+      name: "Dejny",
+      url: "https://dejny.eu",
+      logo: { "@type": "ImageObject", url: "https://dejny.eu/icon.png", width: 512, height: 512 },
+      email: "dejny@dejny.eu",
+      address: { "@type": "PostalAddress", addressLocality: "Praha", addressCountry: "CZ" },
+      contactPoint: { "@type": "ContactPoint", contactType: "customer support", email: "dejny@dejny.eu", availableLanguage: ["cs", "en"] },
+      sameAs: [
+        "https://github.com/Dejnyyy",
+        "https://linkedin.com/in/dejny",
+        "https://www.instagram.com/_dejny",
+        "https://www.tiktok.com/@dejnyyy",
+      ],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      name: "Dejny's Wordly",
+      url: SITE_URL,
+      inLanguage: "en",
+      publisher: { "@id": "https://dejny.eu/#organization" },
+    },
+    {
+      "@type": "WebApplication",
+      "@id": `${SITE_URL}/#app`,
+      name: "Dejny's Wordly",
+      url: SITE_URL,
+      description: SITE_DESCRIPTION,
+      image: OG_IMAGE,
+      applicationCategory: "GameApplication",
+      operatingSystem: "Any",
+      inLanguage: "en",
+      isAccessibleForFree: true,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
+      author: { "@id": "https://dejny.eu/#organization" },
+      publisher: { "@id": "https://dejny.eu/#organization" },
+    },
+  ],
+};
+
 export default function Home() {
   const [word, setWord] = useState<string>(""); // Word to guess
   const [guesses, setGuesses] = useState<string[]>([]);
@@ -168,6 +213,7 @@ export default function Home() {
   );
 
   return (
+    <>
     <div
       className={`relative flex min-h-screen items-center justify-center overflow-hidden transition-all duration-300 ${
         isDarkMode ? "bg-gray-900" : "bg-gray-50"
@@ -189,8 +235,8 @@ export default function Home() {
         <meta property="og:title" content={SITE_TITLE} />
         <meta property="og:description" content={SITE_DESCRIPTION} />
         <meta property="og:image" content={OG_IMAGE} />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
+        <meta property="og:image:width" content="1024" />
+        <meta property="og:image:height" content="943" />
         <meta property="og:site_name" content="Dejny's Wordly" />
         <meta property="og:locale" content="en_US" />
 
@@ -204,6 +250,10 @@ export default function Home() {
         {/* Additional */}
         <meta name="robots" content="index, follow" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+        />
       </Head>
       {/* Background Gradient Animation */}
       <div
@@ -388,5 +438,50 @@ export default function Home() {
         </div>
       )}
     </div>
+
+    <section
+      className={`px-4 py-16 transition-colors duration-300 ${
+        isDarkMode ? "bg-gray-900 text-gray-300" : "bg-gray-50 text-gray-700"
+      }`}
+    >
+      <div className="mx-auto max-w-2xl space-y-4 leading-relaxed">
+        <h2 className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+          How to play Wordly
+        </h2>
+        <p>
+          Wordly is a free word-guessing game inspired by Wordle. Every round hides a random five-letter English
+          word and you have six attempts to find it. Type a guess on your keyboard or tap the letters on the
+          on-screen keyboard, then press Enter to submit it.
+        </p>
+        <p>
+          After each guess the tiles change colour. A green tile means the letter is in the word and in the right
+          spot. A yellow tile means the letter is in the word but in a different position. A grey tile means the
+          letter is not in the word at all. The on-screen keyboard keeps track of the letters you have already
+          tried, so you can narrow down the answer step by step.
+        </p>
+        <p>
+          Unlike the daily original, Wordly lets you play as many rounds as you like. Hit the restart button or
+          Play Again to get a new word straight away. You can switch between light and dark mode with the sun and
+          moon button. No account is needed and the game works on phones, tablets and desktop browsers.
+        </p>
+      </div>
+    </section>
+
+    <footer
+      className={`px-4 py-8 text-sm ${
+        isDarkMode ? "bg-gray-950 text-gray-400" : "bg-white text-gray-600"
+      }`}
+    >
+      <nav className="mx-auto flex max-w-2xl flex-wrap gap-x-6 gap-y-2">
+        <span>
+          Made by <a className="underline" href="https://dejny.eu">Dejny</a>
+        </span>
+        <a className="underline" href="https://roulette.dejny.eu">Roulette</a>
+        <a className="underline" href="https://moodify.dejny.eu">Moodify</a>
+        <a className="underline" href="https://calculator.dejny.eu">Calculator</a>
+        <a className="underline" href="https://github.com/Dejnyyy/Dejnys-Word-Guess">Source on GitHub</a>
+      </nav>
+    </footer>
+    </>
   );
 }
